@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sqlite-snapshot"
+version = "0.1.0"
+description = "Consistent, copyable snapshots of a live SQLite database for file-based backups"
+authors = [{name = "Thomas Breitner", email = "mail@thms.de"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+# sqlite3.connect(autocommit=...) is new in 3.12.
+requires-python = ">=3.12"
+dependencies = []
+urls.Repository = "https://github.com/tombreit/sqlite-snapshot"
+
+[project.optional-dependencies]
+django = ["django>=5.2"]
+test = ["pytest>=8", "pytest-django>=4"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+pythonpath = ["."]
+testpaths = ["tests"]
