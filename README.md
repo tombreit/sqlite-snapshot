@@ -39,7 +39,8 @@ traces"). The snapshot is a single file in rollback-journal mode and needs no
 3. Renames it over the destination. The rename is atomic: a backup sees the
    previous snapshot or the new one, never a half-written file.
 
-The snapshot is synced to disk, and only readable by its owner (mode 0600).
+The snapshot is synced to disk and gets the permission bits of the live
+database file, so it is readable by exactly whoever can read the database.
 A source path that doesn't exist raises an error rather than producing a
 snapshot of an empty database. Temp files left behind by a killed run are
 removed by the first run a day later.
@@ -50,6 +51,18 @@ removed by the first run a day later.
 - No runtime dependencies; Django 5.2+ for the optional Django app
 
 ## Install
+
+Every `v*` tag gets a GitHub release with a wheel and an sdist
+(`.github/workflows/release.yml`). Install a release by the wheel's URL:
+
+```bash
+pip install "sqlite-snapshot[django] @ https://github.com/tombreit/sqlite-snapshot/releases/download/v0.1.0/sqlite_snapshot-0.1.0-py3-none-any.whl"
+```
+
+This also works with hashed requirements (`pip-compile --generate-hashes`):
+pip-tools hashes the wheel like any other file. A `git+https://` requirement
+can't be hashed, and pip's hash-checking mode refuses it. Without hashes, the
+latest `main` works too:
 
 ```bash
 pip install "sqlite-snapshot[django] @ git+https://github.com/tombreit/sqlite-snapshot.git"

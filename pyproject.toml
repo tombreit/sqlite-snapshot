@@ -8,7 +8,8 @@ version = "0.1.0"
 description = "Consistent, copyable snapshots of a live SQLite database for file-based backups"
 authors = [{name = "Thomas Breitner", email = "mail@thms.de"}]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "EUPL-1.2"
+license-files = ["LICENSE"]
 # sqlite3.connect(autocommit=...) is new in 3.12.
 requires-python = ">=3.12"
 dependencies = []

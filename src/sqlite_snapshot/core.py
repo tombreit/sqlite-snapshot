@@ -26,6 +26,7 @@ import glob
 import logging
 import os
 import sqlite3
+import stat
 import tempfile
 import time
 from contextlib import closing
@@ -52,8 +53,9 @@ def snapshot(source, dest, *, timeout=30):
     snapshot or the new one, never a half-written file. Every run uses its own
     temp file, so overlapping runs need no lock; the last one wins.
 
-    The snapshot is only readable by its owner (mode 0600), like any file from
-    ``tempfile.mkstemp``.
+    The snapshot gets the permission bits of ``source``, so it is readable by
+    exactly whoever can read the live database. Its owner and group are those
+    of the process taking the snapshot (only root could copy them).
 
     ``timeout`` is the busy timeout in seconds for the connection to
     ``source``. Returns ``dest`` as a ``Path``.
@@ -82,6 +84,10 @@ def snapshot(source, dest, *, timeout=30):
             # connection's synchronous setting is NORMAL or FULL.
             connection.execute("PRAGMA synchronous=FULL")
             connection.execute("VACUUM INTO ?", (str(tmp),))
+
+        # mkstemp created the file as 0600; set the final mode before the
+        # rename, so the snapshot never appears with other permissions.
+        os.chmod(tmp, stat.S_IMODE(source.stat().st_mode) & 0o777)
 
         result = _integrity_check(tmp)
         if result != "ok":

@@ -72,13 +72,15 @@ def test_snapshot_creates_the_destination_directory(wal_database, count_items):
     assert count_items(dest) == 100
 
 
-def test_snapshot_is_only_readable_by_its_owner(wal_database):
+@pytest.mark.parametrize("mode", [0o644, 0o640, 0o600])
+def test_snapshot_has_the_permissions_of_the_source(wal_database, mode):
     path, _writer = wal_database
+    path.chmod(mode)
     dest = path.with_name("db.snapshot.sqlite3")
 
     snapshot(path, dest)
 
-    assert dest.stat().st_mode & 0o777 == 0o600
+    assert dest.stat().st_mode & 0o777 == mode
 
 
 def test_stale_temp_files_are_removed_and_fresh_ones_kept(wal_database):
